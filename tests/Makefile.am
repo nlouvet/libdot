@@ -1,4 +1,9 @@
-bin_PROGRAMS = timetest perftest
+
+bin_PROGRAMS = timetest
+
+if ENABLE_PAPI
+bin_PROGRAMS += perftest
+endif 
 
 if ENABLE_MPFR
 bin_PROGRAMS += acctest

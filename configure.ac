@@ -13,6 +13,9 @@ AM_PROG_AR
 
 LT_INIT
 
+#Recompile pour toute modif dans la chaine autotool
+AM_MAINTAINER_MODE(enable)
+
 AC_CONFIG_HEADERS([config.h])
 
 dnl *************************************************************
@@ -228,6 +231,15 @@ AC_LINK_IFELSE(
   AC_MSG_RESULT([no])
   AC_MSG_ERROR([unable to use the qd_real type or to link against the qd library])
 )
+
+dnl *************************************************************
+
+AC_CHECK_HEADER(papi.h,
+      have_papi="yes",
+      have_papi="no"
+    )
+
+AM_CONDITIONAL([ENABLE_PAPI], [test "$have_papi" = "yes"])
 
 dnl *************************************************************
 
