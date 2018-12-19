@@ -1,2 +1,30 @@
 # libdot
 libdot
+
+# libdot
+
+Libdot library
+
+# Pour refabriquer le configure avec conviction :
+make distclean
+autoreconf --force --install
+Comme ça, autoreconf considère que tous les fichiers sont nouveaux.
+
+Ensuite, par exemple :
+
+./configure CXX=g++ --enable-mpfr QDPATH=/home/nlouvet/prognlouvet/qd/qd-2.3.20-def
+
+# Dans le configure.ac:
+
+On peut utiliser la macro AC_TRY_RUN pour lancer des tests :
+
+AC_TRY_RUN([
+#include <stdio.h>
+
+int main(void) {
+  printf("Hello!\n");
+  return(0);
+}
+], [AC_MSG_NOTICE([cool])], [AC_MSG_FAILURE([not cool])])
+
+Mais je ne sais pas trop comment contrôler la commande de compilation qu'il utilise, donc c'est un peut génant...
