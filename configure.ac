@@ -30,7 +30,17 @@ dnl *********************************************
 dnl Compiler options controling code optimization
 dnl *********************************************
 
-case "$CXX" in
+if $CXX --version | grep gcc; then
+  COMPXX=g++
+elif $CXX --version | grep clang; then
+  COMPXX=clang++
+elif $CXX --version | grep icpc; then
+  COMPXX=icpc
+else
+  COMPXX=unknown
+fi
+
+case "$COMPXX" in
   dnl GCC compiler options
   g++*) OPT1_CXXFLAGS="-O3 -fno-associative-math -ffp-contract=off -fprefetch-loop-arrays -funroll-all-loops"
         OPT2_CXXFLAGS="-O3 -fno-signed-zeros -fno-trapping-math -fassociative-math -ftree-vectorize -fprefetch-loop-arrays -funroll-all-loops"
