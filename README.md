@@ -1,9 +1,11 @@
 # libdot
-libdot
-
-# libdot
 
 Libdot library
+
+# basic installation procedure :
+autoreconf --install
+./configure QDPATH=...
+make
 
 # Pour refabriquer le configure avec conviction :
 make distclean
