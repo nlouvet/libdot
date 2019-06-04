@@ -28,6 +28,7 @@ http://www.gnu.org/licenses/ or write to the Free Software Foundation, Inc.,
 #include <cstring>
 #include <mpfr.h>
 #include <time.h>
+#include <unistd.h>
 #include "gendot.h"
 #include "libdot.h"
 #include "mpfr_tools.h"
@@ -36,18 +37,80 @@ http://www.gnu.org/licenses/ or write to the Free Software Foundation, Inc.,
 #define K 1
 #define P 128
 
+#define RUN_D2 1
+#define RUN_DD 2
+#define RUN_QD 3
+#define RUN_EX 4
+
+void print_usage(char *str) {
+  fprintf(stderr, "Usage: %s [-r d2|dd|qd] [-n n] [-k k]\n", str);
+  fprintf(stderr, "  -r experiments to be run (d2|dd|qd|ex)\n");
+  fprintf(stderr, "  -n length of the vectors used\n");
+  fprintf(stderr, "  -k number of dot product generated for each conditionning\n");
+}
+
 int main(int argc, char **argv) {
   gmp_randstate_t state;
-  int n = N, k = K, p = P;
+  int run = RUN_D2, n = N, k = K, p = P;
+  
+  extern char *optarg; 
+  extern int optind, opterr; 
+  int opt, errflag = 0;
+
+  while((opt = getopt(argc, argv, ":r:n:k:p:")) != -1) {
+    switch(opt) {
+    case 'r':
+      if(strcmp(optarg, "d2") == 0) run = RUN_D2;
+      else if(strcmp(optarg, "dd") == 0) run = RUN_DD;
+      else if(strcmp(optarg, "qd") == 0) run = RUN_QD;
+      else if(strcmp(optarg, "ex") == 0) run = RUN_EX;
+      else {
+	fprintf(stderr, "wrong argument to -%c\n", opt);
+	errflag = 1;
+      }
+      break;
+    case 'n':
+      if(sscanf(optarg, "%d", &n) != 1) {
+	fprintf(stderr, "wrong argument to -%c\n", opt);
+	errflag = 1;
+      }
+      break;
+    case 'k':
+      if(sscanf(optarg, "%d", &k) != 1) {
+	fprintf(stderr, "wrong argument to -%c\n", opt);
+	errflag = 1;
+      }
+      break;
+    case 'p':
+      if(optind >= argc) {
+	fprintf(stderr, "expected argument after -%c\n", opt);
+	errflag = 1;
+	break;
+      }
+      if(sscanf(optarg, "%d", &k) != 1) {
+	fprintf(stderr, "wrong argument to -%c\n", opt);
+	errflag = 1;
+      }
+      break;
+    case '?':  
+      fprintf(stderr, "Unknown option: %c\n", optopt); 
+    break;  
+    }  
+  }  
+
+  if(errflag) {
+    fprintf(stderr, "Wrong arguments.");
+    print_usage(argv[0]);
+    exit(EXIT_FAILURE);
+  }
   
   //srand(time(NULL));
   srand(0);
   gmp_randinit_default(state);
   gmp_randseed_ui(state, rand());
 
-  if( (argc == 1) || (strcmp(argv[1], "d2") == 0) ) {
-    if( (argc == 3) && (sscanf(argv[2], "%d", &n) != 1)) n = N;
-
+  if(run == RUN_D2) {
+    
     int numfcts = 5, i, j, k;
     const char *namefct[] = {"d", "d_vec", "d2", "d2_vec", "d2_dd"};
     double (* const ptrfct[])(const double *, const double *, int) = {dotprod, dotprod_vec, dotprod2, dotprod2_vec, dotprod2_dd};
@@ -77,12 +140,9 @@ int main(int argc, char **argv) {
     
     free(x);
     free(y);
-  
+    
   }
-  else if( (argc >= 2) && (strcmp(argv[1], "dd") == 0)) {
-    if( (argc >= 3) && (sscanf(argv[2], "%d", &n) != 1)) n = N;
-    if( (argc >= 4) && (sscanf(argv[3], "%d", &k) != 1)) k = K;
-
+  else if(run == RUN_DD) {
     
     mpfr_t *mpfx, *mpfy, mpfz;
     dd_real *x, *y, xh;
@@ -142,9 +202,7 @@ int main(int argc, char **argv) {
     mpfr_clear(mpfz);
 
   }
-  else if( (argc > 1) && (strcmp(argv[1], "qd") == 0) ) {
-    if( (argc >= 3) && (sscanf(argv[2], "%d", &n) != 1)) n = N;
-    if( (argc >= 4) && (sscanf(argv[3], "%d", &k) != 1)) k = K;
+  else if(run == RUN_QD) {
     
     mpfr_t *mpfx, *mpfy, mpfz;
     qd_real *x, *y, xh;
@@ -196,11 +254,7 @@ int main(int argc, char **argv) {
     mpfr_clear(mpfz);
 
   }
-  else if( (argc >= 2) && (strcmp(argv[1], "exp") == 0)) {
-    if( (argc >= 3) && (sscanf(argv[2], "%d", &n) != 1)) n = N;
-    if( (argc >= 4) && (sscanf(argv[3], "%d", &k) != 1)) k = K;
-    if( (argc >= 5) && (sscanf(argv[4], "%d", &p) != 1)) p = P;
-    
+  else if(run = RUN_EX) {
     
     mpfr_t *mpfx, *mpfy, mpfz, *mpfx512, *mpfy512;
     int i, j;
@@ -230,7 +284,7 @@ int main(int argc, char **argv) {
 
   }
   else 
-    printf("Wrong arguments...\n");
+    fprintf(stderr, "This should not have happened...\n");
   
   gmp_randclear(state);
         
