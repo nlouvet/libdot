@@ -15,6 +15,7 @@ Comme ça, autoreconf considère que tous les fichiers sont nouveaux.
 Ensuite, par exemple :
 
 ./configure CXX=g++ --enable-mpfr QDPATH=/home/nlouvet/prognlouvet/qd/qd-2.3.20-def
+./configure CXX=g++-8 ARCH=avx2 QDPATH=/home/nlouvet/qd-2.3.22/ --enable-mpfr
 
 # Dans le configure.ac:
 

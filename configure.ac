@@ -33,7 +33,7 @@ dnl *********************************************
 dnl Compiler options controling code optimization
 dnl *********************************************
 
-if $CXX --version | grep gcc; then
+if $CXX --version | grep g++; then
   COMPXX=g++
 elif $CXX --version | grep clang; then
   COMPXX=clang++
