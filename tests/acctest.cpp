@@ -37,10 +37,11 @@ http://www.gnu.org/licenses/ or write to the Free Software Foundation, Inc.,
 #define K 1
 #define P 128
 
-#define RUN_D2 1
-#define RUN_DD 2
-#define RUN_QD 3
-#define RUN_EX 4
+#define RUN_D  1
+#define RUN_D2 2
+#define RUN_DD 3
+#define RUN_QD 4
+#define RUN_EX 5
 
 void print_usage(char *str) {
   fprintf(stderr, "Usage: %s [-r d2|dd|qd] [-n n] [-k k]\n", str);
@@ -57,10 +58,14 @@ int main(int argc, char **argv) {
   extern int optind, opterr; 
   int opt, errflag = 0;
 
-  while((opt = getopt(argc, argv, ":r:n:k:p:")) != -1) {
+  while((opt = getopt(argc, argv, "hr:n:k:p:")) != -1) {
     switch(opt) {
+    case 'h':
+      print_usage(argv[0]);
+      exit(EXIT_SUCCESS);
     case 'r':
-      if(strcmp(optarg, "d2") == 0) run = RUN_D2;
+      if(strcmp(optarg, "d") == 0) run = RUN_D;
+      else if(strcmp(optarg, "d2") == 0) run = RUN_D2;
       else if(strcmp(optarg, "dd") == 0) run = RUN_DD;
       else if(strcmp(optarg, "qd") == 0) run = RUN_QD;
       else if(strcmp(optarg, "ex") == 0) run = RUN_EX;
@@ -109,7 +114,40 @@ int main(int argc, char **argv) {
   gmp_randinit_default(state);
   gmp_randseed_ui(state, rand());
 
-  if(run == RUN_D2) {
+  if(run == RUN_D) {
+    
+    int numfcts = 3, i, j, k;
+    const char *namefct[] = {"d", "d_vec", "d_pw"};
+    double (* const ptrfct[])(const double *, const double *, int) = {dotprod, dotprod_vec, dotprod_pw};
+    double *x = NULL, *y = NULL, zh, c, e;
+    
+    if(posix_memalign((void **)&x, libdot_align(), N*sizeof(double))) fprintf(stderr, "Memory allocation problem.\n");
+    if(posix_memalign((void **)&y, libdot_align(), N*sizeof(double))) fprintf(stderr, "Memory allocation problem.\n");
+    
+    printf("# \"Working precision...\"\n");
+    printf("# %10s ", "cond");
+    for(j=0; j<numfcts; j++) printf("%12s ", namefct[j]);
+    printf("\n");
+    
+    for(i=0; i<20; i++) {
+      for(k = 0; k < 2; k++) {
+        c = GenDot2_double(x, y, N, pow(10, i), state);
+        printf("%12.5e ", c);
+        for(j=0; j<numfcts; j++) {
+          zh = ptrfct[j](x, y, N);
+          e = DotErr2_double(x, y, N, zh);
+          printf("%12.5e ", e);
+        }
+        printf("\n");
+      }
+    }
+    
+    free(x);
+    free(y);
+    
+  }
+  
+  else if(run == RUN_D2) {
     
     int numfcts = 5, i, j, k;
     const char *namefct[] = {"d", "d_vec", "d2", "d2_vec", "d2_dd"};

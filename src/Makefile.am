@@ -12,6 +12,7 @@ libdot1_la_SOURCES = libdot.h \
                      vec.h \
                      libdot_align.cpp \
                      dotprod_vec.cpp \
+                     dotprod_pw.cpp \
                      dotprod2.cpp \
                      dotprod2_vec.cpp \
                      dotprod2_dd.cpp \

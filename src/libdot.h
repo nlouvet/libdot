@@ -35,6 +35,9 @@ size_t libdot_align(void);
 double dotprod(const double *x, const double *y, int len);
 
 double dotprod_vec(const double *x, const double *y, int len);
+
+double dotprod_pw(const double *x, const double *y, int len);
+
 double dotprod2(const double *x, const double *y, int len);
 double dotprod2_vec(const double *x, const double *y, int len);
 double dotprod2_dd(const double *x, const double *y, int len);
